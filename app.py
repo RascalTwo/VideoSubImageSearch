@@ -2,7 +2,6 @@ import cv2
 import time
 import sys
 import os
-import youtube_dl
 import subprocess
 import threading
 
@@ -17,14 +16,17 @@ def seconds_to_hms(seconds):
     return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
 
 def download_video(video_id):
-    process = subprocess.Popen("youtube-dl {} -o output/temp.mp4 -f 135".format(video_id).split(" "))
+    if os.path.exists("output/{}.mp4".format(video_id)):
+        print "Video already downloaded"
+        return
+    process = subprocess.Popen("youtube-dl {0} -o output/{0}.mp4 -f 135".format(video_id).split(" "))
     print "Downloading Video..."
     process.communicate()
     print "Video Downloaded."
 
-def process_video():
-    global i, list_imgs, video
+def process_video(video):
     numbersign = cv2.imread("numbersign.png")
+    i = 0
     while True:
         i += 1
         video.grab()
@@ -33,9 +35,11 @@ def process_video():
         print "\r" + str(seconds_to_hms(i / 30)),
         sys.stdout.flush()
         frame = video.retrieve()[1]
+        if frame is None:
+            return
         if cv2.minMaxLoc(cv2.matchTemplate(numbersign, frame[375:400, 15:35], cv2.cv.CV_TM_SQDIFF_NORMED))[0] > 0.01:
             continue
-        list_imgs.append({"time": str(seconds_to_hms(i / 30)), "image": frame})
+        yield str(seconds_to_hms(i / 30)), frame
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -55,29 +59,14 @@ if __name__ == "__main__":
 
     #Process video
 
-    video = cv2.VideoCapture("output/temp.mp4")
-    list_imgs = []
-    i = -1
+    video = cv2.VideoCapture("output/{}.mp4".format(video_id))
 
-    thread = threading.Thread(target=process_video)
-    thread.daemon = True
-    thread.start()
-
-    last_i = -1
-    while True:
-        time.sleep(1)
-        if i == last_i:
-            break
-        last_i = i
-
-    print "\nVideo Processed"
-    video.release()
-
-    for i in range(len(list_imgs)):
-        filename = "output/{}.png".format(len(list_imgs) - i)
-        cv2.imwrite(filename, list_imgs[i]["image"])
-        cv2.imshow(list_imgs[i]["time"], list_imgs[i]["image"])
+    for i, (hms, frame) in enumerate(process_video(video)):
+        filename = "output/{}.png".format(i)
+        cv2.imwrite(filename, frame)
+        cv2.imshow(hms, frame)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+    video.release()
     print "Goodbye!"
-    os.remove("output/temp.mp4")
