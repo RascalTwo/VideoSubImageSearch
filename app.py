@@ -18,10 +18,24 @@ def seconds_to_hms(seconds):
 def download_video(video_id):
     if os.path.exists("output/{}.mp4".format(video_id)):
         print "Video already downloaded"
+        yield "00:00"
         return
-    process = subprocess.Popen("youtube-dl {0} -o output/{0}.mp4 -f 135".format(video_id).split(" "))
+
+    process = subprocess.Popen("youtube-dl {0} -o output/{0}.mp4 -f 135".format(video_id).split(" "), stdout=subprocess.PIPE, bufsize=1)
     print "Downloading Video..."
-    process.communicate()
+    last_line = ""
+    while True:
+        out = process.stdout.read(1)
+        if not out and process.poll() is not None:
+            break
+        if not out:
+            continue
+        if out == "\n" or out == "\r":
+            if "ETA" in last_line:
+                yield last_line.split("ETA ")[1]
+            last_line = ""
+        else:
+            last_line += out
     print "Video Downloaded."
 
 def process_video(video):
@@ -55,7 +69,9 @@ if __name__ == "__main__":
     else:
         video_id = sys.argv[1]
 
-    download_video(video_id)
+    for eta in download_video(video_id):
+        print "ETA: " + eta + '        \r',
+    print ""
 
     #Process video
 
