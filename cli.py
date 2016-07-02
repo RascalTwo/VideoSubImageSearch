@@ -7,8 +7,9 @@ if __name__ == '__main__':
         print "Usage: python cli.py video_id [options]"
         print ""
         print "Options:"
-        print "  -q   -   Don't open any of the images, only output the files"
-        print "  -c   -   Ignore cache"
+        print "  -q     -   Don't open any of the images, only output the files"
+        print "  -c     -   Ignore cache"
+        print "  -sf=#  -   Scan every Nth frame, defaults to 45"
         sys.exit()
 
     #Download video
@@ -22,7 +23,10 @@ if __name__ == '__main__':
 
     dont_open = "-q" in sys.argv
     ignore_cache = "-c" in sys.argv
-
+    scanning_frames = None
+    for arg in sys.argv:
+        if arg.startswith("-sf"):
+            scanning_frames = int(arg.split('=')[1])
 
     for eta in app.download_video(video_id, ignore_cache):
         print "ETA: " + eta + "        \r",
@@ -31,7 +35,7 @@ if __name__ == '__main__':
     #Process video
 
 
-    for hms, frame in app.process_video("output/{}.mp4".format(video_id)):
+    for hms, frame in app.process_video("output/{}.mp4".format(video_id), scanning_frames):
         print ""
         filename = "output/{}.png".format(hms)
         cv2.imwrite(filename, frame)

@@ -39,14 +39,16 @@ def download_video(video_id, redownload):
             last_line += out
     print "Video Downloaded."
 
-def process_video(filepath, needle_filepath="numbersign.png"):
+def process_video(filepath, scanning_frames, needle_filepath="numbersign.png"):
+    if not scanning_frames:
+        scanning_frames = 45
     video = cv2.VideoCapture(filepath)
     needle = cv2.imread(needle_filepath)
     i = 0
     while True:
         i += 1
         video.grab()
-        if i % 45:
+        if i % scanning_frames:
             continue
         print "\r" + str(seconds_to_hms(i / 30)),
         sys.stdout.flush()
