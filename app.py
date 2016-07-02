@@ -38,7 +38,8 @@ def download_video(video_id):
             last_line += out
     print "Video Downloaded."
 
-def process_video(video):
+def process_video(filepath):
+    video = cv2.VideoCapture(filepath)
     numbersign = cv2.imread("numbersign.png")
     i = 0
     while True:
@@ -50,39 +51,7 @@ def process_video(video):
         sys.stdout.flush()
         frame = video.retrieve()[1]
         if frame is None:
-            return
-        if cv2.minMaxLoc(cv2.matchTemplate(numbersign, frame[375:400, 15:35], cv2.cv.CV_TM_SQDIFF_NORMED))[0] > 0.01:
+            break
             continue
         yield str(seconds_to_hms(i / 30)), frame
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print "Need a video URL"
-        sys.exit()
-
-    #Download video
-
-    if "v=" in sys.argv[1]:
-        video_id = sys.argv[1].split("v=")[1]
-    elif "youtu.be" in sys.argv[1]:
-        video_id = sys.argv[1].split(".be/")[1]
-    else:
-        video_id = sys.argv[1]
-
-    for eta in download_video(video_id):
-        print "ETA: " + eta + '        \r',
-    print ""
-
-    #Process video
-
-    video = cv2.VideoCapture("output/{}.mp4".format(video_id))
-
-    for i, (hms, frame) in enumerate(process_video(video)):
-        filename = "output/{}.png".format(i)
-        cv2.imwrite(filename, frame)
-        cv2.imshow(hms, frame)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
     video.release()
-    print "Goodbye!"
