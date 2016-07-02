@@ -1,9 +1,7 @@
 import cv2
-import time
 import sys
 import os
 import subprocess
-import threading
 
 def seconds_to_hms(seconds):
     if seconds <= 60:
@@ -38,9 +36,9 @@ def download_video(video_id):
             last_line += out
     print "Video Downloaded."
 
-def process_video(filepath):
+def process_video(filepath, needle_filepath="numbersign.png"):
     video = cv2.VideoCapture(filepath)
-    numbersign = cv2.imread("numbersign.png")
+    needle = cv2.imread(needle_filepath)
     i = 0
     while True:
         i += 1
@@ -52,6 +50,7 @@ def process_video(filepath):
         frame = video.retrieve()[1]
         if frame is None:
             break
+        if cv2.minMaxLoc(cv2.matchTemplate(needle, frame[375:400, 15:35], cv2.cv.CV_TM_SQDIFF_NORMED))[0] > 0.01:
             continue
         yield str(seconds_to_hms(i / 30)), frame
     video.release()
