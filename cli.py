@@ -3,8 +3,12 @@ import cv2
 import app
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print "Need a video URL"
+    if len(sys.argv) < 2:
+        print "Usage: python cli.py video_id [options]"
+        print ""
+        print "Options:"
+        print "  -q   -   Don't open any of the images, only output the files"
+        print "  -c   -   Ignore cache"
         sys.exit()
 
     #Download video
@@ -16,18 +20,24 @@ if __name__ == '__main__':
     else:
         video_id = sys.argv[1]
 
-    for eta in app.download_video(video_id):
-        print "ETA: " + eta + '        \r',
+    dont_open = "-q" in sys.argv
+    ignore_cache = "-c" in sys.argv
+
+
+    for eta in app.download_video(video_id, ignore_cache):
+        print "ETA: " + eta + "        \r",
     print ""
 
     #Process video
 
 
-    for i, (hms, frame) in enumerate(app.process_video("output/{}.mp4".format(video_id))):
-        filename = "output/{}.png".format(i)
+    for hms, frame in app.process_video("output/{}.mp4".format(video_id)):
+        print ""
+        filename = "output/{}.png".format(hms)
         cv2.imwrite(filename, frame)
-        cv2.imshow(hms, frame)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        if not dont_open:
+            cv2.imshow(hms, frame)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
     print "Goodbye!"

@@ -13,7 +13,10 @@ def seconds_to_hms(seconds):
     hours, minutes = divmod(minutes, 60)
     return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
 
-def download_video(video_id):
+def download_video(video_id, redownload):
+    if redownload and os.path.exists("output/{}.mp4".format(video_id)):
+        os.unlink(os.path.exists("output/{}.mp4".format(video_id)))
+
     if os.path.exists("output/{}.mp4".format(video_id)):
         print "Video already downloaded"
         yield "00:00"
