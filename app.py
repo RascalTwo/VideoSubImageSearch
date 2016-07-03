@@ -14,15 +14,15 @@ def seconds_to_hms(seconds):
     return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
 
 def download_video(video_id, redownload):
-    if redownload and os.path.exists("output/{}.mp4".format(video_id)):
-        os.unlink(os.path.exists("output/{}.mp4".format(video_id)))
+    if redownload and os.path.exists("cache/{}.mp4".format(video_id)):
+        os.unlink(os.path.exists("cache/{}.mp4".format(video_id)))
 
-    if os.path.exists("output/{}.mp4".format(video_id)):
+    if os.path.exists("cache/{}.mp4".format(video_id)):
         print "Video already downloaded"
         yield "00:00"
         return
 
-    process = subprocess.Popen("youtube-dl {0} -o output/{0}.mp4 -f 135".format(video_id).split(" "), stdout=subprocess.PIPE, bufsize=1)
+    process = subprocess.Popen("youtube-dl {0} -o cache/{0}.mp4 -f 135".format(video_id).split(" "), stdout=subprocess.PIPE, bufsize=1)
     print "Downloading Video..."
     last_line = ""
     while True:
@@ -50,12 +50,12 @@ def process_video(filepath, scanning_frames, needle_filepath="numbersign.png"):
         video.grab()
         if i % scanning_frames:
             continue
-        print "\r" + str(seconds_to_hms(i / 30)),
+        yield str(seconds_to_hms(i / 30)), None
         sys.stdout.flush()
         frame = video.retrieve()[1]
         if frame is None:
             break
-        if cv2.minMaxLoc(cv2.matchTemplate(needle, frame[375:400, 15:35], cv2.cv.CV_TM_SQDIFF_NORMED))[0] > 0.01:
+        if cv2.minMaxLoc(cv2.matchTemplate(needle, frame[375:400, 15:35], cv2.TM_SQDIFF_NORMED))[0] > 0.01:
             continue
         yield str(seconds_to_hms(i / 30)), frame
     video.release()

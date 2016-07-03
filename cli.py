@@ -7,7 +7,7 @@ if __name__ == '__main__':
         print "Usage: python cli.py video_id [options]"
         print ""
         print "Options:"
-        print "  -q     -   Don't open any of the images, only output the files"
+        print "  -q     -   Don't open any of the frames, only output them"
         print "  -c     -   Ignore cache"
         print "  -sf=#  -   Scan every Nth frame, defaults to 45"
         sys.exit()
@@ -35,9 +35,13 @@ if __name__ == '__main__':
     #Process video
 
 
-    for hms, frame in app.process_video("output/{}.mp4".format(video_id), scanning_frames):
+    for hms, frame in app.process_video("cache/{}.mp4".format(video_id), scanning_frames):
+        print "\r" + hms,
+        if frame is None:
+            continue
+
         print ""
-        filename = "output/{}.png".format(hms)
+        filename = "frames/{}.png".format(hms)
         cv2.imwrite(filename, frame)
         if not dont_open:
             cv2.imshow(hms, frame)
