@@ -39,11 +39,13 @@ def download_video(video_id, redownload):
             last_line += out
     print "Video Downloaded."
 
-def process_video(filepath, scanning_frames, needle_filepath="numbersign.png"):
+def process_video(filepath, scanning_frames):
     if not scanning_frames:
         scanning_frames = 45
     video = cv2.VideoCapture(filepath)
-    needle = cv2.imread(needle_filepath)
+    needles = []
+    for filename in os.listdir("needles"):
+        needles.append(cv2.imread("needles/" + filename))
     i = 0
     while True:
         i += 1
@@ -55,7 +57,9 @@ def process_video(filepath, scanning_frames, needle_filepath="numbersign.png"):
         frame = video.retrieve()[1]
         if frame is None:
             break
-        if cv2.minMaxLoc(cv2.matchTemplate(needle, frame[375:400, 15:35], cv2.TM_SQDIFF_NORMED))[0] > 0.01:
-            continue
-        yield str(seconds_to_hms(i / 30)), frame
+        for needle in needles:
+            if cv2.minMaxLoc(cv2.matchTemplate(needle, frame[375:400, 15:35], cv2.TM_SQDIFF_NORMED))[0] > 0.01:
+                break
+        else:
+            yield str(seconds_to_hms(i / 30)), frame
     video.release()
