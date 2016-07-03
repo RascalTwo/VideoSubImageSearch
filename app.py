@@ -39,7 +39,9 @@ def download_video(video_id, redownload):
             last_line += out
     print "Video Downloaded."
 
-def process_video(filepath, scanning_frames):
+def process_video(filepath, scanning_frames, search_areas=None):
+    if not search_areas:
+        search_areas = []
     if not scanning_frames:
         scanning_frames = 45
     video = cv2.VideoCapture(filepath)
@@ -57,8 +59,9 @@ def process_video(filepath, scanning_frames):
         frame = video.retrieve()[1]
         if frame is None:
             break
-        for needle in needles:
-            if cv2.minMaxLoc(cv2.matchTemplate(needle, frame[375:400, 15:35], cv2.TM_SQDIFF_NORMED))[0] > 0.01:
+        for o, needle in enumerate(needles):
+            y, y2, x, x2 = search_areas[o] if 0 < len(search_areas) else [0, 1000000, 0, 1000000]
+            if cv2.minMaxLoc(cv2.matchTemplate(needle, frame[y:y2, x:x2], cv2.TM_SQDIFF_NORMED))[0] > 0.01:
                 break
         else:
             yield str(seconds_to_hms(i / 30)), frame
