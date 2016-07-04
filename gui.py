@@ -45,7 +45,6 @@ class GUI(Frame):
         self.label["text"] = "Enter Video Here"
         self.label.pack()
         self.input = Entry(self)
-        self.input.insert(END, "vBqrK9tyvzU")
         self.input.pack()
 
         self.start = Button(self)
@@ -122,7 +121,7 @@ class GUI(Frame):
             if frame is None:
                 continue
 
-            filename = "cache/{}.png".format(hms)
+            filename = "frames/{}.png".format(hms)
             cv2.imwrite(filename, frame)
             self.raw_frames[i] = frame
 
