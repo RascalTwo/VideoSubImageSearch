@@ -15,7 +15,7 @@ def seconds_to_hms(seconds):
 
 def download_video(video_id, redownload):
     if redownload and os.path.exists("cache/{}.mp4".format(video_id)):
-        os.unlink(os.path.exists("cache/{}.mp4".format(video_id)))
+        os.unlink("cache/{}.mp4".format(video_id))
 
     if os.path.exists("cache/{}.mp4".format(video_id)):
         print "Video already downloaded"
