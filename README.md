@@ -8,16 +8,6 @@ Shows you the frame themselves, when they occured, and saves them.
 > graphic that's used whenever the entry title is on screen, but as you can see the program
 > can be customized to search for any subimage within any YouTube video.
 
-## Dependencies
-
-- Python 2.7+
-- youtube-dl
-- opencv
-
-## Options
-
-Every image within the `needles` folder is a subimage to search for, so you can add as many as you like.
-
 ## Usage
 
 ### CLI
@@ -28,11 +18,12 @@ Every image within the `needles` folder is a subimage to search for, so you can 
 
 `python cli.py BBxLDFIgFCY`
 
+https://user-images.githubusercontent.com/9403665/131947659-db17ebda-96a4-420e-bb64-4a1e96799b9c.mp4
+
 #### Options
 
 - `q`
   - Don't open any of the frames, only output them
-
 - `-c`
   - Ignore cache
 - `-sf=#`
@@ -44,6 +35,19 @@ Every image within the `needles` folder is a subimage to search for, so you can 
 ### GUI
 
 `python gui.py`
+
+https://user-images.githubusercontent.com/9403665/131947673-89d0a59d-2d5c-4cfb-a440-487d1a518668.mp4
+
+
+## Dependencies
+
+- Python 2.7+
+- youtube-dl
+- opencv
+
+## Options
+
+Every image within the `needles` folder is a subimage to search for, so you can add as many as you like.
 
 ## Technical
 
